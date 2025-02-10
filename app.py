@@ -28,9 +28,10 @@ app.register_blueprint(unprocessed_blueprint, url_prefix='/unprocessed')
 app.register_blueprint(processing_blueprint, url_prefix='/process')
 app.register_blueprint(processed_blueprint, url_prefix='/processed')
 
-# Register SocketIO Event Handlers
-handle_notifications(socketio)
-handle_data_events(socketio)
+# Register WebSocket event handlers
+handle_notifications(socketio)  # If this exists
+handle_data_events(socketio)  # ✅ Ensure this is called
+
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000, debug=True)
+    socketio.run(app, port=4000, debug=True)
