@@ -5,52 +5,52 @@ import json
 # Server API endpoint
 SERVER_URL = "http://localhost:4000/api/"
 
-def fetch_data():
-    response = requests.get(f"{SERVER_URL}unprocessedData")  # Assuming 'unprocessed' endpoint
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print("Error fetching data:", response.status_code, response.text)
-        return None
+class DataProcessor:
+    def __init__(self, server_url):
+        self.server_url = server_url
+        self.session = requests.Session()  # Reuse session for better performance
 
-def export_data(data):
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(f"{SERVER_URL}uploadData", data=json.dumps(data), headers=headers)  # Assuming 'export' endpoint
-    if response.status_code in [200, 201]:
-        print("Data exported successfully")
-    else:
-        print("Error exporting data:", response.status_code, response.text)
+    def fetch_data(self):
+        """Fetch unprocessed data from the server."""
+        try:
+            response = self.session.get(f"{self.server_url}unprocessedData", timeout=5)
+            response.raise_for_status()  # Raise error for HTTP issues
+            data = response.json()
+            return data.get("data", [])
+        except requests.exceptions.RequestException as e:
+            print(f" Error fetching data: {e}")
+            return []
 
-def load_data_from_server():
-    """
-    Fetch unprocessed data from the server's API.
+    def export_data(self, data):
+        """Export processed data back to the server."""
+        try:
+            headers = {'Content-Type': 'application/json'}
+            response = self.session.post(f"{self.server_url}uploadData", json=data, headers=headers, timeout=5)
+            response.raise_for_status()
+            print(" Data exported successfully!")
+        except requests.exceptions.RequestException as e:
+            print(f" Error exporting data: {e}")
 
-    Returns:
-        pd.DataFrame: DataFrame containing unprocessed data.
-    """
-    try:
-        data = fetch_data()
-        if not data or "data" not in data:
-            print("No data received from the server.")
-            return pd.DataFrame()
+    def process_data(self, data):
+        """Process data by adding a 'processed' flag."""
+        return [{**item, "processed": True} for item in data]
 
-        df = pd.DataFrame(data["data"])
-        return df
-    except Exception as e:
-        print(f"⚠️ Error connecting to server: {e}")
-        return pd.DataFrame()
+    def run(self):
+        """Main execution flow."""
+        print("Fetching data from the server...")
+        data = self.fetch_data()
 
-def main():
-    print("📥 Fetching data from the server...")
-    df = load_data_from_server()
+        if not data:
+            print(" No data received. Exiting...")
+            return
 
-    if not df.empty:
-        print("✅ Data loaded successfully!")
+        df = pd.DataFrame(data)
+        print(f" Data loaded successfully! {len(df)} records found.")
         print(df.head())  # Display first few rows for verification
-        processed_data = [{**item, "processed": True} for item in df.to_dict(orient='records')]
-        export_data(processed_data)
-    else:
-        print("⚠️ No data found. Exiting...")
+
+        processed_data = self.process_data(data)
+        self.export_data(processed_data)
 
 if __name__ == "__main__":
-    main()
+    processor = DataProcessor(SERVER_URL)
+    processor.run()
