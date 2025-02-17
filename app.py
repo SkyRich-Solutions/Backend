@@ -1,8 +1,6 @@
 import requests
 import pandas as pd
 import json
-from sockets.notifications import handle_notifications
-from sockets.data_events import handle_data_events
 
 # Server API endpoint
 SERVER_URL = "http://localhost:4000/api/"
@@ -17,8 +15,8 @@ def fetch_data():
 
 def export_data(data):
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(f"{SERVER_URL}export", data=json.dumps(data), headers=headers)  # Assuming 'export' endpoint
-    if response.status_code == 200:
+    response = requests.post(f"{SERVER_URL}uploadData", data=json.dumps(data), headers=headers)  # Assuming 'export' endpoint
+    if response.status_code in [200, 201]:
         print("Data exported successfully")
     else:
         print("Error exporting data:", response.status_code, response.text)
