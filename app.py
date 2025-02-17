@@ -1,37 +1,58 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_socketio import SocketIO
-from routes.unprocessed import unprocessed_blueprint
-from routes.processing import processing_blueprint
-from routes.processed import processed_blueprint
+import requests
+import pandas as pd
+import json
 from sockets.notifications import handle_notifications
 from sockets.data_events import handle_data_events
-from utils import connect_to_mongo, load_data_from_mongo, process_data
 
-# Initialize Flask app
-app = Flask(__name__)
-CORS(app)
+# Server API endpoint
+SERVER_URL = "http://localhost:4000/api/"
 
-# Initialize Flask-SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*")
+def fetch_data():
+    response = requests.get(f"{SERVER_URL}unprocessedData")  # Assuming 'unprocessed' endpoint
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Error fetching data:", response.status_code, response.text)
+        return None
 
-# Test MongoDB connection during startup
-try:
-    unprocessed_collection, processed_collection = connect_to_mongo()
-    print("Connected to MongoDB successfully!")
-except Exception as e:
-    print(f"Error connecting to MongoDB: {e}")
-    exit(1)  # Exit the app if MongoDB connection fails
+def export_data(data):
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(f"{SERVER_URL}export", data=json.dumps(data), headers=headers)  # Assuming 'export' endpoint
+    if response.status_code == 200:
+        print("Data exported successfully")
+    else:
+        print("Error exporting data:", response.status_code, response.text)
 
-# Register Blueprints (RESTful endpoints)
-app.register_blueprint(unprocessed_blueprint, url_prefix='/unprocessed')
-app.register_blueprint(processing_blueprint, url_prefix='/process')
-app.register_blueprint(processed_blueprint, url_prefix='/processed')
+def load_data_from_server():
+    """
+    Fetch unprocessed data from the server's API.
 
-# Register WebSocket event handlers
-handle_notifications(socketio)  # If this exists
-handle_data_events(socketio)  # ✅ Ensure this is called
+    Returns:
+        pd.DataFrame: DataFrame containing unprocessed data.
+    """
+    try:
+        data = fetch_data()
+        if not data or "data" not in data:
+            print("No data received from the server.")
+            return pd.DataFrame()
 
+        df = pd.DataFrame(data["data"])
+        return df
+    except Exception as e:
+        print(f"⚠️ Error connecting to server: {e}")
+        return pd.DataFrame()
 
-if __name__ == '__main__':
-    socketio.run(app, port=4000, debug=True)
+def main():
+    print("📥 Fetching data from the server...")
+    df = load_data_from_server()
+
+    if not df.empty:
+        print("✅ Data loaded successfully!")
+        print(df.head())  # Display first few rows for verification
+        processed_data = [{**item, "processed": True} for item in df.to_dict(orient='records')]
+        export_data(processed_data)
+    else:
+        print("⚠️ No data found. Exiting...")
+
+if __name__ == "__main__":
+    main()
