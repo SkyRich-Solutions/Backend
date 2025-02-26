@@ -10,7 +10,7 @@ class DataProcessor:
         self.server_url = server_url
         self.session = requests.Session()  # Reuse session for better performance
 
-    def fetch_data(self):
+    def fetch_UnprocessedData(self):
         """Fetch unprocessed data from the server."""
         try:
             response = self.session.get(f"{self.server_url}unprocessedData", timeout=5)
@@ -18,7 +18,18 @@ class DataProcessor:
             data = response.json()
             return data.get("data", [])
         except requests.exceptions.RequestException as e:
-            print(f" Error fetching data: {e}")
+            print(f" Error fetching unprocessed data: {e}")
+            return []
+        
+    def fetch_PredictionsData(self):
+        """Fetch predictions data from the server."""
+        try:
+            response = self.session.get(f"{self.server_url}uploadPredictionData", timeout=5)
+            response.raise_for_status()  # Raise error for HTTP issues
+            data = response.json()
+            return data.get("data", [])
+        except requests.exceptions.RequestException as e:
+            print(f" Error fetching predictions data: {e}")
             return []
 
     def export_data(self, data):
@@ -37,19 +48,35 @@ class DataProcessor:
 
     def run(self):
         """Main execution flow."""
-        print("Fetching data from the server...")
-        data = self.fetch_data()
+        print("\nFetching unprocessed data from the server...")
+        unprocessed_data = self.fetch_UnprocessedData()
+        
+        if unprocessed_data:
+            df_unprocessed = pd.DataFrame(unprocessed_data)
+            print(f" Unprocessed Data loaded successfully! {len(df_unprocessed)} records found.")
+            print(df_unprocessed.head())  # Display first few rows
+        else:
+            print(" No unprocessed data received.")
 
-        if not data:
-            print(" No data received. Exiting...")
-            return
+        print("\nFetching predictions data from the server...")
+        predictions_data = self.fetch_PredictionsData()
 
-        df = pd.DataFrame(data)
-        print(f" Data loaded successfully! {len(df)} records found.")
-        print(df.head())  # Display first few rows for verification
+        if predictions_data:
+            df_predictions = pd.DataFrame(predictions_data)
+            print(f" Predictions Data loaded successfully! {len(df_predictions)} records found.")
+            print(df_predictions.head())  # Display first few rows
+        else:
+            print(" No predictions data received.")
 
-        processed_data = self.process_data(data)
-        self.export_data(processed_data)
+        # Process and export unprocessed data if available
+        if unprocessed_data:
+            processed_unprocessed_data = self.process_data(unprocessed_data)
+            self.export_data(processed_unprocessed_data)
+
+        # Process and export predictions data if available
+        if predictions_data:
+            processed_predictions_data = self.process_data(predictions_data)
+            self.export_data(processed_predictions_data)
 
 if __name__ == "__main__":
     processor = DataProcessor(SERVER_URL)

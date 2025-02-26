@@ -1,5 +1,2 @@
 pandas
-pymongo
 python-dotenv
-flask
-socketio
