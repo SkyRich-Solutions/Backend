@@ -36,6 +36,12 @@ jobs:
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
+      # Debug: Check the directory structure
+      - name: Debug Directory Structure
+        run: |
+          pwd  # Show the current working directory
+          ls -al  # List all files to make sure 'Server' is present at the right location
+
       # Start the server in the background
       - name: Start the server
         run: |
