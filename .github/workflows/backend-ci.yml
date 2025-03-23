@@ -1,6 +1,5 @@
 name: Python Backend CI Pipeline
 
-
 on:
   push:
     branches:
@@ -8,30 +7,54 @@ on:
       - Feature
       - backend-ci-pipeline
 
-
 jobs:
   backend:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
+      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # - name: Run tests
-      #   run: |
-      #     pytest --maxfail=3 --disable-warnings -q
+      # Run tests using pytest
+      - name: Run tests
+        run: |
+          pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
 
-      # - name: Lint code
-      #   run: |
-      #     pip install flake8
-      #     flake8 .
+      # Build Python distribution packages
+      - name: Build Python package
+        run: |
+          python setup.py sdist bdist_wheel  # Generates .tar.gz and .whl files in 'dist' folder
+
+      # Collect generated files (build artifacts)
+      - name: Collect build artifacts
+        run: |
+          mkdir -p artifacts
+          cp dist/* artifacts/  # Copy the generated dist files
+          # Add other generated files, like logs, if needed:
+          # cp output/*.json artifacts/
+
+      # Upload build artifacts to GitHub Actions
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-build-artifacts
+          path: artifacts/*  # Upload everything from the 'artifacts' folder
+
+      # Lint code using flake8
+      - name: Lint code
+        run: |
+          pip install flake8
+          flake8 .  # Run flake8 on the entire codebase
