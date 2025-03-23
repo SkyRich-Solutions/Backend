@@ -34,15 +34,6 @@ jobs:
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
-      # Start the server in the background
-      - name: Start server
-        run: |
-          nohup npm run dev &  # Run server in the background
-
-      - name: Wait for server to start (optional)
-        run: |
-          sleep 10  # Adjust time as needed, giving the server time to start
-
       # Run Python tests and save the results to a text file
       - name: Run Python tests
         run: |
@@ -65,8 +56,3 @@ jobs:
           name: backend-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
 
-      # (Optional) Clean up after tests if necessary
-      - name: Stop server (if needed)
-        run: |
-          # You can add a command here to stop the server if it's still running
-          kill $(jobs -p)  # This stops any background jobs runni
