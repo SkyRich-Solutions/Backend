@@ -28,28 +28,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Run tests using pytest
-      # - name: Run tests
-      #   run: |
-      #     pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
+      # Run flake8 and save the linting results
+      - name: Run flake8 and save results
+        run: |
+          pip install flake8
+          flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
-      # Collect generated files (build artifacts)
+      # Collect generated files (including flake8 results)
       - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
-          # Collect any generated files (logs, output, etc.)
-          # For example, if you have output in a directory like 'output/':
-          # cp output/*.json artifacts/
+          # Move the flake8 results to the artifacts folder
+          mv flake8_results.txt artifacts/
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
           name: backend-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
 
-      # Lint code using flake8
-      - name: Lint code
-        run: |
-          pip install flake8
-          flake8 . --exit-zero  # Lint code and exit without failing the pipeline
+      # Lint code using flake8 (already done above, but included for completeness)
+      # - name: Lint code
+      #   run: |
+      #     pip install flake8
+      #     flake8 . --exit-zero  # Lint code and exit without failing the pipeline
