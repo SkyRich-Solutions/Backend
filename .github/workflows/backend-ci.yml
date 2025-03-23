@@ -15,6 +15,8 @@ jobs:
       # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          submodules: true  # Ensure submodules (like Server) are initialized
 
       # Set up Python environment
       - name: Set up Python
