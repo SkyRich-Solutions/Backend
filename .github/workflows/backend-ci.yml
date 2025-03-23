@@ -48,7 +48,7 @@ jobs:
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: python-build-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
