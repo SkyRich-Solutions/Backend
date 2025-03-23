@@ -34,18 +34,18 @@ jobs:
       #     pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
 
       # Collect generated files (build artifacts)
-      - name: Collect build artifacts
+      - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
-          cp dist/* artifacts/  # Copy the generated dist files
-          # Add other generated files, like logs, if needed:
+          # Collect any generated files (logs, output, etc.)
+          # For example, if you have output in a directory like 'output/':
           # cp output/*.json artifacts/
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
         uses: actions/upload-artifact@master
         with:
-          name: python-build-artifacts
+          name: backend-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
 
       # Lint code using flake8
