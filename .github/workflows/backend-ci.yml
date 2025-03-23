@@ -37,7 +37,6 @@ jobs:
       # Start the server from the root directory
       - name: Start the server
         run: |
-          cd ..
           cd Server
           nohup npm run dev &  # Start the server in the background
 
@@ -49,7 +48,6 @@ jobs:
       # Run backend tests
       - name: Run Python tests
         run: |
-          cd ..
           cd Backend  # Ensure we're in the Backend folder
           python -m unittest discover -s test -p "*.py" > test_results/test_report.txt
         
