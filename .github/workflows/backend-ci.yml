@@ -34,6 +34,10 @@ jobs:
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
+      - name: Check if the server is running
+        run: |
+          curl --silent --fail http://localhost:4000/api/unprocessedData || exit 1
+        
       # Run Python tests and save the results to a text file
       - name: Run Python tests
         run: |
