@@ -33,11 +33,6 @@ jobs:
       #   run: |
       #     pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
 
-      # Build Python distribution packages
-      - name: Build Python package
-        run: |
-          python setup.py sdist bdist_wheel  # Generates .tar.gz and .whl files in 'dist' folder
-
       # Collect generated files (build artifacts)
       - name: Collect build artifacts
         run: |
