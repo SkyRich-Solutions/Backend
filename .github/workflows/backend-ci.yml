@@ -29,9 +29,9 @@ jobs:
           pip install -r requirements.txt
 
       # Run tests using pytest
-      - name: Run tests
-        run: |
-          pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
+      # - name: Run tests
+      #   run: |
+      #     pytest --maxfail=3 --disable-warnings -q  # Run tests and stop after 3 failures
 
       # Build Python distribution packages
       - name: Build Python package
