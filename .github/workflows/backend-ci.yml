@@ -34,12 +34,21 @@ jobs:
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
-      # Collect generated files (including flake8 results)
+
+      # Run Python tests and save the results to a text file
+      - name: Run Python tests
+        run: |
+          pip install -r requirements.txt  # Ensure dependencies are installed
+          mkdir -p test_results
+          python -m unittest discover -s test -p "*.py" > test_results/test_report.txt  # Save the test results to a text file
+
+      # Collect generated files (including flake8 results and test results)
       - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
-          # Move the flake8 results to the artifacts folder
+          # Move the flake8 results and test results to the artifacts folder
           mv flake8_results.txt artifacts/
+          mv test_results/test_report.txt artifacts/
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
