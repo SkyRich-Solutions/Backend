@@ -47,9 +47,3 @@ jobs:
         with:
           name: backend-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
-
-      # Lint code using flake8 (already done above, but included for completeness)
-      # - name: Lint code
-      #   run: |
-      #     pip install flake8
-      #     flake8 . --exit-zero  # Lint code and exit without failing the pipeline
