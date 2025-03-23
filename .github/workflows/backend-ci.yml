@@ -34,22 +34,9 @@ jobs:
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
 
-      # Start the server from the root directory
-      - name: Start the server
+      - name: Check if the server is running
         run: |
-          cd Server
-          nohup npm run dev &  # Start the server in the background
-
-      # Give the server time to start
-      - name: Wait for server to start
-        run: |
-          sleep 10  # Adjust time as needed for the server to fully start
-
-      # Run backend tests
-      - name: Run Python tests
-        run: |
-          cd Backend  # Ensure we're in the Backend folder
-          python -m unittest discover -s test -p "*.py" > test_results/test_report.txt
+          curl --silent --fail http://localhost:4000/api/unprocessedData || exit 1
         
       # Run Python tests and save the results to a text file
       - name: Run Python tests
