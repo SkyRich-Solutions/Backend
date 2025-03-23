@@ -45,7 +45,7 @@ jobs:
       # Start the server in the background
       - name: Start the server
         run: |
-          cd ../Server  # Adjust the path if needed
+          cd ../../Server  # Adjust the path if needed
           nohup npm run dev &  # Run server in the background
           
       # Wait for the server to start and become available (adjust time as needed)
