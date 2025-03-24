@@ -15,6 +15,8 @@ jobs:
       # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'  # Ensure submodules are initialized and updated
 
       # Set up Python environment
       - name: Set up Python
@@ -33,6 +35,23 @@ jobs:
         run: |
           pip install flake8
           flake8 . --exit-zero > flake8_results.txt  # Save the flake8 results to a text file
+
+      # Debug: Check the directory structure
+      - name: Debug Directory Structure
+        run: |
+          pwd  # Show the current working directory
+          ls -al  # List all files to check if 'Server' folder exists
+
+      # Change directory to the Server submodule
+      - name: Start the server
+        run: |
+          cd ../Server  # Move up one directory, then enter the 'Server' submodule
+          nohup npm run dev &  # Run server in the background
+
+      # Wait for the server to start (optional, adjust time as needed)
+      - name: Wait for server to start
+        run: |
+          sleep 10  # Wait for 10 seconds, adjust time if necessary
 
       - name: Check if the server is running
         run: |
