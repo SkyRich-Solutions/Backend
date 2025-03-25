@@ -30,6 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Set PYTHONPATH to Backend folder to ensure modules can be found
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/Backend" >> $GITHUB_ENV
+
       # Run flake8 and save the linting results
       - name: Run flake8 and save results
         run: |
@@ -41,29 +45,22 @@ jobs:
         run: |
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
-      
-        # Set PYTHONPATH to the Backend folder
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)/Backend" >> $GITHUB_ENV
         
-      # Run Python tests and save the results as JUnit XML
+      # Run Python tests and save results as JUnit XML
       - name: Run Python tests and save results
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
           mkdir -p test_results
-          # Run all tests in the Test folder and save the output in text format
-          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run all tests and save output
-          # Convert the output to JUnit XML format using pytest
-          pytest --maxfail=1 --disable-warnings --junitxml=test_results/junit_report.xml
+          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run tests and save output
+          python -m unittest discover -s Test -p "*.py" --buffer --failfast --verbose > test_results/junit_report.xml  # Save the results in JUnit format
 
-      # Collect generated files (including flake8 results, test results, and JUnit test results)
+      # Collect generated files (including flake8 results and test results)
       - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
-          # Move the flake8 results and test results to the artifacts folder
           mv flake8_results.txt artifacts/
           mv test_results/test_report.txt artifacts/
-          mv test_results/junit_report.xml artifacts/  # Upload JUnit XML test results
+          mv test_results/junit_report.xml artifacts/
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
@@ -71,4 +68,3 @@ jobs:
         with:
           name: backend-artifacts
           path: artifacts/*  # Upload everything from the 'artifacts' folder
-
