@@ -47,9 +47,10 @@ jobs:
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
           mkdir -p test_results
-          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run tests and save output
-          # Convert the output to JUnit format (if you want detailed results)
-          python -m unittest discover -s Test -p "*.py" --buffer --failfast --verbose > test_results/junit_report.xml
+          # Run all tests in the Test folder and save the output in text format
+          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run all tests and save output
+          # Convert the output to JUnit XML format using pytest
+          pytest --maxfail=1 --disable-warnings --junitxml=test_results/junit_report.xml
 
       # Collect generated files (including flake8 results, test results, and JUnit test results)
       - name: Collect generated artifacts
