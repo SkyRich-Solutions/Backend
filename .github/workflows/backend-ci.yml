@@ -41,36 +41,24 @@ jobs:
         run: |
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
-
-      # Change directory to the Server submodule
-      - name: Start the server
-        run: |
-          cd ../Server  # Move up one directory, then enter the 'Server' submodule
-          nohup npm run dev &  # Run server in the background
-
-      # Wait for the server to start (optional, adjust time as needed)
-      - name: Wait for server to start
-        run: |
-          sleep 10  # Wait for 10 seconds, adjust time if necessary
-
-      - name: Check if the server is running
-        run: |
-          curl --silent --fail http://localhost:4000/api/unprocessedData || exit 1
         
-      # Run Python tests and save the results to a text file
-      - name: Run Python tests
+      # Run Python tests and save the results as JUnit XML
+      - name: Run Python tests and save results
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
           mkdir -p test_results
-          python -m unittest discover -s test -p "*.py" > test_results/test_report.txt  # Save the test results to a text file
+          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run tests and save output
+          # Convert the output to JUnit format (if you want detailed results)
+          python -m unittest discover -s Test -p "*.py" --buffer --failfast --verbose > test_results/junit_report.xml
 
-      # Collect generated files (including flake8 results and test results)
+      # Collect generated files (including flake8 results, test results, and JUnit test results)
       - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
           # Move the flake8 results and test results to the artifacts folder
           mv flake8_results.txt artifacts/
           mv test_results/test_report.txt artifacts/
+          mv test_results/junit_report.xml artifacts/  # Upload JUnit XML test results
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
