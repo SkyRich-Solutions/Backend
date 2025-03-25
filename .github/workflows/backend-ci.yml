@@ -42,23 +42,21 @@ jobs:
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
         
-      # Run Python tests and save the results as JUnit XML
+      # Run Python tests and save results as JUnit XML
       - name: Run Python tests and save results
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
-          mkdir -p test_results
-          # Set PYTHONPATH to Backend to ensure 'main' module is found
-          export PYTHONPATH=$PYTHONPATH:/home/runner/work/Backend/Backend
-          pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
+          mkdir -p test_results  # Ensure the test_results directory exists
+          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run tests and save output
+          # Convert the output to JUnit format (if you want detailed results)
+          python -m unittest discover -s Test -p "*.py" --buffer --failfast --verbose > test_results/junit_report.xml
 
-      # Collect generated files (including flake8 results, test results, and JUnit test results)
+      # Collect generated files (including flake8 results and test results)
       - name: Collect generated artifacts
         run: |
-          mkdir -p artifacts
-          # Move the flake8 results and test results to the artifacts folder
-          mv flake8_results.txt artifacts/
-          mv test_results/test_report.txt artifacts/
-          mv test_results/junit_report.xml artifacts/  # Upload JUnit XML test results
+          mkdir -p artifacts  # Ensure the artifacts folder exists
+          mv test_results/test_report.txt artifacts/  # Move the test report to the artifacts folder
+          mv test_results/junit_report.xml artifacts/  # Move the JUnit report to the artifacts folder
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
