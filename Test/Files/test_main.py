@@ -13,7 +13,7 @@ class TestDataProcessor(unittest.TestCase):
     def test_fetch_unprocessed_turbine_data(self, mock_get):
         
         # Simulate a successful response with mock data
-        with open('test/MockData/TurbineData.json', 'r') as f:
+        with open('Test/MockData/TurbineData.json', 'r') as f:
             mock_turbine_data = json.load(f)
 
         mock_response = MagicMock()
@@ -46,7 +46,7 @@ class TestDataProcessor(unittest.TestCase):
     def test_fetch_unprocessed_material_data(self, mock_get):
         
         # Simulate a successful response with mock material data
-        with open('test/MockData/MaterialData.json', 'r') as f:
+        with open('Test/MockData/MaterialData.json', 'r') as f:
             mock_material_data = json.load(f)
 
         mock_response = MagicMock()
