@@ -41,6 +41,10 @@ jobs:
         run: |
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
+      
+        # Set PYTHONPATH to the Backend folder
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/Backend" >> $GITHUB_ENV
         
       # Run Python tests and save the results as JUnit XML
       - name: Run Python tests and save results

@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 import json
 from io import StringIO
 import sys
-from main import DataProcessor  # Ensure your file is named correctly
+from main import DataProcessor
 
 class TestDataProcessor(unittest.TestCase):
     
