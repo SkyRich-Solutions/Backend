@@ -41,20 +41,15 @@ jobs:
         run: |
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
-      
-        # Set PYTHONPATH to the Backend folder
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)/Backend" >> $GITHUB_ENV
         
       # Run Python tests and save the results as JUnit XML
       - name: Run Python tests and save results
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
           mkdir -p test_results
-          # Run all tests in the Test folder and save the output in text format
-          python -m unittest discover -s Test -p "*.py" > test_results/test_report.txt  # Run all tests and save output
-          # Convert the output to JUnit XML format using pytest
-          pytest --maxfail=1 --disable-warnings --junitxml=test_results/junit_report.xml
+          # Set PYTHONPATH to Backend to ensure 'main' module is found
+          export PYTHONPATH=$PYTHONPATH:/home/runner/work/Backend/Backend
+          pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
 
       # Collect generated files (including flake8 results, test results, and JUnit test results)
       - name: Collect generated artifacts
