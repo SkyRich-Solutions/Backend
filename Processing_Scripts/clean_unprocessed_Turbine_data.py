@@ -240,6 +240,3 @@ def update_coordinates(data):
     df.drop(columns=['CountryCode', 'FunctionalLocPrefix', 'CountryFromFunctionalLoc'], errors='ignore', inplace=True)
 
     return df.to_dict(orient='records')
-
-
-

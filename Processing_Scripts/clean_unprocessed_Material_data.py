@@ -1,6 +1,6 @@
-def clean_material_data(data):
-    import pandas as pd
+import pandas as pd
 
+def clean_material_data(data):
     if not data:
         print("\n❌ No unprocessed data found.")
         return []
@@ -24,11 +24,13 @@ def clean_material_data(data):
 
     serial_no_profiles = ['ZPP2', 'ZPP8', 'ZCS1']
 
+    # ✅ Create Violation Column
     df['Violation'] = (
-        (df['Serial_No_Profile'].isin(serial_no_profiles)) & 
+        df['Serial_No_Profile'].isin(serial_no_profiles) & 
         (df['Replacement_Part'] != 'B')
     ).astype(int)
 
+    # ✅ Ensure 'Replacement_Part' is updated correctly (including NaN handling)
     df.loc[df['Violation'] == 1, 'Replacement_Part'] = 'B'
     df['cleaned(Unprocessed)'] = True
 

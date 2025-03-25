@@ -14,7 +14,8 @@ sys.path.append(str(processing_scripts_path))
 from clean_unprocessed_Material_data import clean_material_data
 from clean_unprocessed_Turbine_data import clean_turbine_data
 from clean_unprocessed_Turbine_data import update_coordinates
-from clean_processed_data import clean_processed_data  
+from clean_processed_material_data import clean_processed_material_data
+from clean_processed_turbine_data import clean_processed_turbine_data
 
 # Server API endpoint
 SERVER_URL = "http://localhost:4000/api/"
@@ -64,14 +65,24 @@ class DataProcessor:
             return []
 
         
-    def fetch_ProcessedData(self):
-        """Fetch processed data from the server."""
+    def fetch_ProcessedMaterialData(self):
+        """Fetch processed material data from the server."""
         try:
-            response = self.session.get(f"{self.server_url}fetch_ProcessedData", timeout=5)
+            response = self.session.get(f"{self.server_url}fetch_ProcessedMaterialData", timeout=5)
             response.raise_for_status()
             return response.json().get("data", [])
         except requests.exceptions.RequestException as e:
-            print(f" Error fetching processed data: {e}")
+            print(f" Error fetching processed material data: {e}")
+            return []
+        
+    def fetch_ProcessedTurbineData(self):
+        """Fetch processed turbine data from the server."""
+        try:
+            response = self.session.get(f"{self.server_url}fetch_ProcessedTurbineData", timeout=5)
+            response.raise_for_status()
+            return response.json().get("data", [])
+        except requests.exceptions.RequestException as e:
+            print(f" Error fetching processed turbine data: {e}")
             return []
         
     def fetch_PredictionsData(self):
@@ -105,18 +116,28 @@ class DataProcessor:
             print("Processed MaterialData exported successfully!")
         except requests.exceptions.RequestException as e:
             print(f"Error exporting processed MaterialData: {e}") 
-
             
-    def exportPredictions_data(self, data):
-        """Export predictions data back to the server."""
+    def exportMaterialPredictions_data(self, data):
+        """Export material predictions data back to the server."""
         try:
             headers = {'Content-Type': 'application/json'}
             clean_data = self.safe_json_export(data)  # Ensure JSON compliance
-            response = self.session.post(f"{self.server_url}uploadPredictionsData", json=clean_data, headers=headers, timeout=5)
+            response = self.session.post(f"{self.server_url}uploadMaterialPredictionsData", json=clean_data, headers=headers, timeout=5)
             response.raise_for_status()
-            print(" Predictions data exported successfully!")
+            print(" Material predictions data exported successfully!")
         except requests.exceptions.RequestException as e:
-            print(f" Error exporting predictions data: {e}") 
+            print(f" Error exporting material predictions data: {e}") 
+            
+    def exportTurbinePredictions_data(self, data):
+        """Export turbine predictions data back to the server."""
+        try:
+            headers = {'Content-Type': 'application/json'}
+            clean_data = self.safe_json_export(data)  # Ensure JSON compliance
+            response = self.session.post(f"{self.server_url}uploadTurbinePredictionsData", json=clean_data, headers=headers, timeout=5)
+            response.raise_for_status()
+            print(" Turbine predictions data exported successfully!")
+        except requests.exceptions.RequestException as e:
+            print(f" Error exporting turbine predictions data: {e}") 
 
     def run(self):
         """Main execution flow."""
@@ -153,20 +174,39 @@ class DataProcessor:
         else:
             print(" No unprocessed material data received.")
 
-        print("\nFetching processed data from the server...")
-        processed_data = self.fetch_ProcessedData()
+        print("\nFetching processed material data from the server...")
+        processed_material_data = self.fetch_ProcessedMaterialData()
 
-        if processed_data:
-            df_processed = pd.DataFrame(processed_data)
-            print(f" Processed Data loaded successfully! {len(df_processed)} records found.")
-            print(df_processed.head())
+        if processed_material_data:
+            df_processed_material = pd.DataFrame(processed_material_data)
+            print(f" Processed Material Data loaded successfully! {len(df_processed_material)} records found.")
+            print(df_processed_material.head())
 
             # **Process the data using the new function**
-            predictions_result = clean_processed_data(processed_data)
+            predictions_result = clean_processed_material_data(df_processed_material)
 
             if predictions_result["success"]:
                 # **Export predictions data**
-                self.exportPredictions_data(predictions_result["data"])
+                self.exportMaterialPredictions_data(predictions_result["data"])
+            else:
+                print(" No predictions data to export.")
+        else:
+            print(" No processed data received.")
+            
+        print("\nFetching processed turbine data from the server...")
+        processed_turbine_data = self.fetch_ProcessedTurbineData()
+
+        if processed_turbine_data:
+            df_processed_turbine = pd.DataFrame(processed_turbine_data)
+            print(f" Processed Turbine Data loaded successfully! {len(df_processed_turbine)} records found.")
+            print(df_processed_turbine.head())
+
+            # **Process the data using the new function**
+            predictions_result = clean_processed_turbine_data(df_processed_turbine)
+
+            if predictions_result["success"]:
+                # **Export predictions data**
+                self.exportTurbinePredictions_data(predictions_result["data"])
             else:
                 print(" No predictions data to export.")
         else:
