@@ -57,7 +57,6 @@ jobs:
           mkdir -p artifacts
           # Move the flake8 results and test results to the artifacts folder
           mv flake8_results.txt artifacts/
-          mv test_results/test_report.txt artifacts/
           mv test_results/junit_report.xml artifacts/  # Upload JUnit XML test results
 
       # Upload build artifacts to GitHub Actions
