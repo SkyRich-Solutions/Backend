@@ -42,18 +42,31 @@ jobs:
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
 
-      # Run Python tests with coverage and save reports
-      - name: Run tests with coverage and save results
+      # # Run Python tests with coverage and save reports
+      # - name: Run tests with coverage and save results
+      #   run: |
+      #     pip install -r requirements.txt  # Ensure dependencies are installed
+      #     pip install coverage pytest
+      #     mkdir -p test_results
+      #     export PYTHONPATH=$PYTHONPATH:/home/runner/work/Backend/Backend
+      #     # Run tests with coverage and generate reports
+      #     coverage run -m pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
+      #     coverage report -m
+      #     coverage xml  # for code coverage report in XML
+      #     coverage html  # for HTML version (optional)
+
+      # Run tests with coverage and generate reports
+      - name: Run tests with coverage
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
           pip install coverage pytest
           mkdir -p test_results
           export PYTHONPATH=$PYTHONPATH:/home/runner/work/Backend/Backend
-          # Run tests with coverage and generate reports
-          coverage run -m pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
+          coverage run --rcfile=.coveragerc -m pytest --junitxml=test_results/junit_report.xml
           coverage report -m
-          coverage xml  # for code coverage report in XML
-          coverage html  # for HTML version (optional)
+          coverage xml -o artifacts/coverage.xml
+          coverage html -d artifacts/htmlcov
+
 
       # Collect generated files (including flake8 results, test results, and coverage reports)
       - name: Collect generated artifacts
