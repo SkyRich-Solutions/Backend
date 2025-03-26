@@ -74,7 +74,6 @@ jobs:
           mkdir -p artifacts
           mv flake8_results.txt artifacts/
           mv test_results/junit_report.xml artifacts/
-          mv -f htmlcov artifacts/htmlcov || echo "No htmlcov folder to move"
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
