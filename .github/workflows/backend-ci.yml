@@ -41,23 +41,28 @@ jobs:
         run: |
           pwd  # Show the current working directory
           ls -al  # List all files to check if 'Server' folder exists
-        
-      # Run Python tests and save the results as JUnit XML
-      - name: Run Python tests and save results
+
+      # Run Python tests with coverage and save reports
+      - name: Run tests with coverage and save results
         run: |
           pip install -r requirements.txt  # Ensure dependencies are installed
+          pip install coverage pytest
           mkdir -p test_results
-          # Set PYTHONPATH to Backend to ensure 'main' module is found
           export PYTHONPATH=$PYTHONPATH:/home/runner/work/Backend/Backend
-          pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
+          # Run tests with coverage and generate reports
+          coverage run -m pytest --maxfail=5 --disable-warnings --junitxml=test_results/junit_report.xml
+          coverage report -m
+          coverage xml  # for code coverage report in XML
+          coverage html  # for HTML version (optional)
 
-      # Collect generated files (including flake8 results, test results, and JUnit test results)
+      # Collect generated files (including flake8 results, test results, and coverage reports)
       - name: Collect generated artifacts
         run: |
           mkdir -p artifacts
-          # Move the flake8 results and test results to the artifacts folder
           mv flake8_results.txt artifacts/
-          mv test_results/junit_report.xml artifacts/  # Upload JUnit XML test results
+          mv test_results/junit_report.xml artifacts/
+          mv coverage.xml artifacts/
+          mv -f htmlcov artifacts/htmlcov || echo "No htmlcov folder to move"
 
       # Upload build artifacts to GitHub Actions
       - name: Upload build artifacts
